@@ -8,7 +8,7 @@ interface ResultsSectionProps {
   isLoading: boolean;
 }
 
-const API_BASE_URL = 'http://127.0.0.1:5001';
+const API_BASE_URL = window.location.origin;
 
 const SkeletonLoader: React.FC = () => (
     <div className="max-w-4xl mx-auto bg-slate-900 border border-slate-800 p-6 rounded-2xl animate-pulse">
