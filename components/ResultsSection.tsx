@@ -119,18 +119,14 @@ const FormatTable: React.FC<{ formats: DownloadFormat[], type: 'video' | 'audio'
                                 </td>
                                 <td className="p-3">{formatBytes(format.filesize)}</td>
                                 <td className="p-3 text-right">
-                                    <a 
-                                        href={`${API_BASE_URL}/api/download?videoId=${videoId}&formatId=${format.format_id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={e => {
-                                            e.preventDefault();
+                                    <button 
+                                        onClick={() => {
                                             window.open(`${API_BASE_URL}/api/download?videoId=${videoId}&formatId=${format.format_id}`, '_blank');
                                         }}
                                         className="flex items-center justify-center space-x-2 rtl:space-x-reverse bg-cyan-600 text-white font-bold py-2 px-4 rounded-full transition-all duration-300 transform hover:bg-cyan-500 hover:scale-105 text-sm">
                                         <DownloadIcon className="w-5 h-5"/>
                                         <span className="hidden md:inline">Download</span>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         ))}
