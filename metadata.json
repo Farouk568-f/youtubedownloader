@@ -1,0 +1,6 @@
+{
+  "name": "YT Downloader",
+  "description": "A sleek, modern YouTube video downloader. Paste a link to get download options for various formats and qualities. Styled with a dark, futuristic theme.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
