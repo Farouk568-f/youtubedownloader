@@ -1,8 +1,8 @@
 import { APIResponse } from '../types.ts';
 
 // --- IMPORTANT ---
-// Before running the frontend, make sure the python `backend.py` server is running on port 5001.
-const API_BASE_URL = 'http://127.0.0.1:5001';
+// Use dynamic API base URL for production deployment
+const API_BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'http://127.0.0.1:5001';
 
 /**
  * --- API IMPLEMENTATION ---
