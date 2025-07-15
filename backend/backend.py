@@ -171,9 +171,11 @@ def download_video():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_frontend(path):
-    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
+    dist_dir = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
+    full_path = os.path.join(dist_dir, path)
+    if path != "" and os.path.exists(full_path):
+        return send_from_directory(dist_dir, path)
     else:
-        return send_from_directory(app.static_folder, 'index.html')
+        return send_from_directory(dist_dir, 'index.html')
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
