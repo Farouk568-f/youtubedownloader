@@ -6,7 +6,7 @@ from flask_cors import CORS
 import os
 from flask import send_from_directory
 # --- Setup ---
-app = Flask(__name__)
+app = Flask(__name__, static_folder='dist')
 # Enable Cross-Origin Resource Sharing (CORS) to allow your frontend
 # to communicate with this backend.
 CORS(app)
@@ -171,9 +171,9 @@ def download_video():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_frontend(path):
-    if path != "" and os.path.exists(os.path.join('dist', path)):
-        return send_from_directory('dist', path)
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
     else:
-        return send_from_directory('dist', 'index.html')
+        return send_from_directory(app.static_folder, 'index.html')
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

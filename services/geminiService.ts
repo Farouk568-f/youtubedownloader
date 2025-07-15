@@ -2,7 +2,7 @@ import { APIResponse } from '../types.ts';
 
 // --- IMPORTANT ---
 // Use dynamic API base URL for production deployment
-const API_BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'http://127.0.0.1:5001';
+const API_BASE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 
 /**
  * --- API IMPLEMENTATION ---
