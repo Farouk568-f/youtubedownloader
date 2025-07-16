@@ -6,7 +6,10 @@ export default defineConfig(({ mode }) => {
     return {
       server: {
         host: '127.0.0.1',
-        port: 5173
+        port: 5173,
+        proxy: {
+          '/api': 'http://127.0.0.1:5000'
+        }
       },
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),

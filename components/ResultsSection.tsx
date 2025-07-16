@@ -8,7 +8,7 @@ interface ResultsSectionProps {
   isLoading: boolean;
 }
 
-const API_BASE_URL = window.location.origin;
+const API_BASE_URL = "http://localhost:5000";
 
 const SkeletonLoader: React.FC = () => (
     <div className="max-w-4xl mx-auto bg-slate-900 border border-slate-800 p-6 rounded-2xl animate-pulse">
@@ -119,14 +119,12 @@ const FormatTable: React.FC<{ formats: DownloadFormat[], type: 'video' | 'audio'
                                 </td>
                                 <td className="p-3">{formatBytes(format.filesize)}</td>
                                 <td className="p-3 text-right">
-                                    <a 
-                                        href={`${API_BASE_URL}/api/download?videoId=${videoId}&formatId=${format.format_id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <button
+                                        onClick={() => handleDownload(videoId, format.format_id, format.ext)}
                                         className="flex items-center justify-center space-x-2 rtl:space-x-reverse bg-cyan-600 text-white font-bold py-2 px-4 rounded-full transition-all duration-300 transform hover:bg-cyan-500 hover:scale-105 text-sm">
                                         <DownloadIcon className="w-5 h-5"/>
                                         <span className="hidden md:inline">Download</span>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         ))}
@@ -160,6 +158,29 @@ const VideoDownloaderCard: React.FC<{ video: VideoDetails }> = ({ video }) => {
     );
 };
 
+const [isDownloading, setIsDownloading] = React.useState(false);
+
+const handleDownload = async (videoId: string, formatId: string, filename: string) => {
+  try {
+    setIsDownloading(true);
+    const downloadUrl = `/download/${encodeURIComponent(filename)}?videoId=${videoId}&formatId=${formatId}`;
+    const response = await fetch(downloadUrl);
+    if (!response.ok) throw new Error('Download failed');
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    alert('حدث خطأ أثناء التحميل');
+  } finally {
+    setIsDownloading(false);
+  }
+};
 
 const DownloadSection: React.FC<ResultsSectionProps> = ({ results, isLoading }) => {
     if (isLoading) {
@@ -204,6 +225,17 @@ const DownloadSection: React.FC<ResultsSectionProps> = ({ results, isLoading }) 
                         </div>
                     </div>
                 </motion.section>
+            )}
+            {isDownloading && (
+              <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                <div className="bg-slate-900 p-8 rounded-2xl shadow-2xl flex flex-col items-center">
+                  <svg className="animate-spin h-10 w-10 text-cyan-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                  </svg>
+                  <p className="text-lg text-cyan-200 font-bold">جاري التحميل...</p>
+                </div>
+              </div>
             )}
         </AnimatePresence>
     );

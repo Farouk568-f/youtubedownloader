@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
 import os
 from flask import send_from_directory
+import urllib.parse
 # --- Setup ---
 app = Flask(__name__)
 # Enable Cross-Origin Resource Sharing (CORS) to allow your frontend
@@ -53,13 +54,25 @@ def process_formats(formats_list):
         elif not resolution:
             resolution = 'audio' if format_type == 'audio' else 'N/A'
 
+        # حساب الحجم
+        filesize = f.get('filesize') or f.get('filesize_approx')
+        if not filesize:
+            # حاول التقدير إذا توفر tbr وduration
+            tbr = f.get('tbr')  # كيلوبيت/ثانية
+            duration = f.get('duration')
+            if tbr and duration:
+                try:
+                    filesize = int((float(tbr) * float(duration)) / 8) * 1024  # بالبايت
+                except Exception:
+                    filesize = None
+
         processed.append({
             'format_id': f.get('format_id'),
             'resolution': resolution,
             'ext': f.get('ext'),
             'vcodec': vcodec,
             'acodec': acodec,
-            'filesize': f.get('filesize') or f.get('filesize_approx'),
+            'filesize': filesize,
             'type': format_type,
             'note': f.get('format_note', ''),
         })
@@ -156,16 +169,69 @@ def download_video():
             else:
                 filename = f"{title}.{ext}"
 
+            # جلب الحجم
+            filesize = info.get('filesize') or info.get('filesize_approx')
+            if not filesize:
+                tbr = info.get('tbr')
+                duration = info.get('duration')
+                if tbr and duration:
+                    try:
+                        filesize = int((float(tbr) * float(duration)) / 8) * 1024
+                    except Exception:
+                        filesize = None
         req = requests.get(download_url, stream=True)
-        
-        return Response(stream_with_context(req.iter_content(chunk_size=1024*1024)), headers={
+        headers = {
             'Content-Type': req.headers['Content-Type'],
             'Content-Disposition': f'attachment; filename="{filename}"'
-        })
+        }
+        if filesize:
+            headers['Content-Length'] = str(filesize)
+        return Response(stream_with_context(req.iter_content(chunk_size=1024*1024)), headers=headers)
 
     except Exception as e:
         app.logger.error(f"Failed to process download: {e}")
         return jsonify({"message": f"Failed to process download for format {format_id}."}), 500
+
+@app.route('/download/<path:filename>', methods=['GET'])
+def download_pretty_url(filename):
+    """
+    Endpoint لتحميل الفيديو برابط يبدو طبيعي (بدون API أو باراميترات)،
+    يستخرج videoId وformatId من الكويري (أو من اسم الملف إذا أردت لاحقاً).
+    مثال: /download/اسم-الفيديو-الجودة.mp4?videoId=xxx&formatId=yyy
+    """
+    video_id = request.args.get('videoId')
+    format_id = request.args.get('formatId')
+    if not video_id or not format_id:
+        return jsonify({"message": "videoId and formatId parameters are required."}), 400
+
+    video_url = f"https://www.youtube.com/watch?v={video_id}"
+    try:
+        ydl_opts = {'format': format_id, 'quiet': True}
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=False)
+            download_url = info.get('url')
+            # اسم الملف من الرابط وليس من info (لضمان التطابق)
+            safe_filename = sanitize_filename(filename)
+            filesize = info.get('filesize') or info.get('filesize_approx')
+            if not filesize:
+                tbr = info.get('tbr')
+                duration = info.get('duration')
+                if tbr and duration:
+                    try:
+                        filesize = int((float(tbr) * float(duration)) / 8) * 1024
+                    except Exception:
+                        filesize = None
+        req = requests.get(download_url, stream=True)
+        headers = {
+            'Content-Type': req.headers['Content-Type'],
+            'Content-Disposition': f'attachment; filename="{safe_filename}"'
+        }
+        if filesize:
+            headers['Content-Length'] = str(filesize)
+        return Response(stream_with_context(req.iter_content(chunk_size=1024*1024)), headers=headers)
+    except Exception as e:
+        app.logger.error(f"Failed to process pretty download: {e}")
+        return jsonify({"message": f"Failed to process download for {filename}."}), 500
 
 # --- Main Execution ---
 @app.route('/', defaults={'path': ''})

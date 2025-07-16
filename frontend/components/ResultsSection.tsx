@@ -86,7 +86,7 @@ const getUniqueSortedFormats = (formats: DownloadFormat[], type: 'video' | 'audi
     }
 };
 
-const FormatTable: React.FC<{ formats: DownloadFormat[], type: 'video' | 'audio', videoId: string }> = ({ formats, type, videoId }) => {
+const FormatTable: React.FC<{ formats: DownloadFormat[], type: 'video' | 'audio', videoId: string, videoTitle: string }> = ({ formats, type, videoId, videoTitle }) => {
     // تنظيم الجودات
     const organizedFormats = getUniqueSortedFormats(formats, type);
     if (organizedFormats.length === 0) return null;
@@ -119,14 +119,15 @@ const FormatTable: React.FC<{ formats: DownloadFormat[], type: 'video' | 'audio'
                                 </td>
                                 <td className="p-3">{formatBytes(format.filesize)}</td>
                                 <td className="p-3 text-right">
-                                    <button 
-                                        onClick={() => {
-                                            window.open(`${API_BASE_URL}/api/download?videoId=${videoId}&formatId=${format.format_id}`, '_blank');
-                                        }}
-                                        className="flex items-center justify-center space-x-2 rtl:space-x-reverse bg-cyan-600 text-white font-bold py-2 px-4 rounded-full transition-all duration-300 transform hover:bg-cyan-500 hover:scale-105 text-sm">
+                                    <a
+                                        href={`${API_BASE_URL}/api/download?videoId=${videoId}&formatId=${format.format_id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center space-x-2 rtl:space-x-reverse bg-cyan-600 text-white font-bold py-2 px-4 rounded-full transition-all duration-300 transform hover:bg-cyan-500 hover:scale-105 text-sm"
+                                    >
                                         <DownloadIcon className="w-5 h-5"/>
                                         <span className="hidden md:inline">Download</span>
-                                    </button>
+                                    </a>
                                 </td>
                             </tr>
                         ))}
@@ -153,13 +154,31 @@ const VideoDownloaderCard: React.FC<{ video: VideoDetails }> = ({ video }) => {
                 </div>
             </div>
             <div className="mt-8 border-t border-slate-700/50 pt-6 space-y-8">
-                <FormatTable videoId={video.id} formats={videoFormats} type="video" />
-                <FormatTable videoId={video.id} formats={audioFormats} type="audio" />
+                <FormatTable videoId={video.id} formats={videoFormats} type="video" videoTitle={video.title} />
+                <FormatTable videoId={video.id} formats={audioFormats} type="audio" videoTitle={video.title} />
             </div>
         </div>
     );
 };
 
+const handleDownload = async (videoId: string, format: DownloadFormat, videoTitle: string) => {
+    try {
+        const filename = `${videoTitle} - ${(format.note || format.resolution || '').replace(/[^a-zA-Z0-9\-_ ]/g, '')}.${format.ext}`;
+        const response = await fetch(`${API_BASE_URL}/api/download?videoId=${videoId}&formatId=${format.format_id}`);
+        if (!response.ok) throw new Error('Download failed');
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (err) {
+        alert('Download failed!');
+    }
+};
 
 const DownloadSection: React.FC<ResultsSectionProps> = ({ results, isLoading }) => {
     if (isLoading) {
