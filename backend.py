@@ -3,6 +3,7 @@ import requests
 import re
 from flask import Flask, request, jsonify, Response, stream_with_context, send_from_directory
 from flask_cors import CORS
+from waitress import serve
 import os
 import urllib.parse
 
@@ -118,7 +119,8 @@ def get_video_or_playlist_info():
     except yt_dlp.utils.DownloadError as e:
         app.logger.error(f"yt-dlp download error: {e}")
         error_message = str(e).lower()
-        if "sign in to confirm" in error_message or "consent" in error_message or "age-restricted" in error_message:
+        # More robust check for various forms of YouTube protection
+        if "sign in" in error_message or "not a bot" in error_message or "consent" in error_message or "age-restricted" in error_message or "http error 400" in error_message or "http error 403" in error_message or "http error 429" in error_message:
             return jsonify({
                 "message": "This video is protected by YouTube. Please try again with a cookies.txt file.",
                 "isProtected": True
@@ -204,5 +206,5 @@ def serve(path):
 if __name__ == '__main__':
     # Use environment variable for port, default to 5000 for local dev
     port = int(os.environ.get("PORT", 5000))
-    # Debug mode should be off in production
-    app.run(host='0.0.0.0', port=port, debug=False)
+    # Use Waitress, a production-ready WSGI server
+    serve(app, host='0.0.0.0', port=port)
