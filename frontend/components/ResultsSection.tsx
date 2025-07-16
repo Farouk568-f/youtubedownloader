@@ -6,6 +6,7 @@ import { DownloadIcon } from '../constants.tsx';
 interface ResultsSectionProps {
   results: APIResponse | null;
   isLoading: boolean;
+  error: string | null;
 }
 
 const API_BASE_URL = window.location.origin;
@@ -196,7 +197,7 @@ const handleDownload = async (videoId: string, format: DownloadFormat, videoTitl
     }
 };
 
-const DownloadSection: React.FC<ResultsSectionProps> = ({ results, isLoading }) => {
+const DownloadSection: React.FC<ResultsSectionProps> = ({ results, isLoading, error }) => {
     if (isLoading) {
         return (
             <section id="download-results" className="section pt-0">
@@ -206,18 +207,20 @@ const DownloadSection: React.FC<ResultsSectionProps> = ({ results, isLoading }) 
             </section>
         );
     }
-    if (results === null) {
-        return null;
-    }
-    if ((results as any).message) {
+    if (error || (results && (results as any).isProtected)) {
         return (
             <section id="download-results" className="section pt-0">
                 <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center">
-                        <strong>تعذر جلب معلومات الفيديو.</strong><br/>
-                        قد يكون الفيديو خاصًا أو محميًا أو يتطلب تحقق من يوتيوب.<br/>
-                        جرب فيديو آخر أو استخدم ملف cookies.txt في مجلد backend.<br/>
-                        <a href="https://chrome.google.com/webstore/detail/get-cookiestxt/" target="_blank" rel="noopener noreferrer" className="underline text-blue-600">طريقة استخراج cookies.txt</a>
+                    <div className="bg-red-900/50 border border-red-700 text-red-300 px-6 py-4 rounded-lg relative text-center shadow-lg">
+                        <strong className="font-bold block text-lg mb-2 text-red-200">فشل في جلب الفيديو!</strong>
+                        <p className="text-red-300">
+                            { (results as any).message || error || "قد يكون الفيديو خاصًا أو محميًا. جرب فيديو آخر أو استخدم الكوكيز."}
+                        </p>
+                        <p className="mt-3 text-sm">
+                            <a href="https://github.com/yt-dlp/yt-dlp#how-do-i-pass-cookies-to-yt-dlp" target="_blank" rel="noopener noreferrer" className="underline text-cyan-400 hover:text-cyan-300">
+                                تعلم كيفية استخدام الكوكيز لتجاوز هذه المشكلة
+                            </a>
+                        </p>
                     </div>
                 </div>
             </section>
