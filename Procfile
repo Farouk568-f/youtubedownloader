@@ -1,1 +1,1 @@
-web: gunicorn backend.backend:app 
+web: nginx -c /app/nginx.conf -g 'daemon off;' & gunicorn backend.backend:app 

@@ -190,17 +190,6 @@ def download_video():
         app.logger.error(f"Failed to process download: {e}")
         return jsonify({"message": f"Failed to process download for format {format_id}."}), 500
 
-# --- Static file serving and main entry point ---
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    dist_dir = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
-    if path != "" and os.path.exists(os.path.join(dist_dir, path)):
-        return send_from_directory(dist_dir, path)
-    else:
-        return send_from_directory(dist_dir, 'index.html')
-
 if __name__ == '__main__':
     # Use environment variable for port, default to 5000 for local dev.
     # The Procfile uses gunicorn for production.
