@@ -3,7 +3,6 @@ import requests
 import re
 from flask import Flask, request, jsonify, Response, stream_with_context, send_from_directory
 from flask_cors import CORS
-from waitress import serve
 import os
 import urllib.parse
 
@@ -117,15 +116,13 @@ def get_video_or_playlist_info():
             return jsonify(response_data)
 
     except yt_dlp.utils.DownloadError as e:
-        app.logger.error(f"yt-dlp download error: {e}")
-        error_message = str(e).lower()
-        # More robust check for various forms of YouTube protection
-        if "sign in" in error_message or "not a bot" in error_message or "consent" in error_message or "age-restricted" in error_message or "http error 400" in error_message or "http error 403" in error_message or "http error 429" in error_message:
-            return jsonify({
-                "message": "This video is protected by YouTube. Please try again with a cookies.txt file.",
-                "isProtected": True
-            }), 403
-        return jsonify({"message": "Failed to fetch info. The URL might be invalid, private, or geo-restricted."}), 404
+        app.logger.error(f"yt-dlp download error for url {url}: {e}")
+        # Assume ANY DownloadError is a protection/availability issue.
+        # This is a more robust way to handle various errors from yt-dlp.
+        return jsonify({
+            "message": "This video is protected, private, or unavailable. If you are sure the URL is correct, please try again later or use a cookies.txt file for protected content.",
+            "isProtected": True
+        }), 403
     except Exception as e:
         app.logger.error(f"An unexpected error occurred: {e}")
         return jsonify({"message": "An unexpected server error occurred."}), 500
@@ -204,7 +201,7 @@ def serve(path):
         return send_from_directory(dist_dir, 'index.html')
 
 if __name__ == '__main__':
-    # Use environment variable for port, default to 5000 for local dev
+    # Use environment variable for port, default to 5000 for local dev.
+    # The Procfile uses gunicorn for production.
     port = int(os.environ.get("PORT", 5000))
-    # Use Waitress, a production-ready WSGI server
-    serve(app, host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=False)
