@@ -1,1 +1,1 @@
-web: python backend/backend.py 
+web: gunicorn backend:app || waitress-serve --port=5000 backend:app 

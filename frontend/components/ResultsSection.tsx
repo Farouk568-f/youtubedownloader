@@ -206,6 +206,23 @@ const DownloadSection: React.FC<ResultsSectionProps> = ({ results, isLoading }) 
             </section>
         );
     }
+    if (results === null) {
+        return null;
+    }
+    if ((results as any).message) {
+        return (
+            <section id="download-results" className="section pt-0">
+                <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center">
+                        <strong>تعذر جلب معلومات الفيديو.</strong><br/>
+                        قد يكون الفيديو خاصًا أو محميًا أو يتطلب تحقق من يوتيوب.<br/>
+                        جرب فيديو آخر أو استخدم ملف cookies.txt في مجلد backend.<br/>
+                        <a href="https://chrome.google.com/webstore/detail/get-cookiestxt/" target="_blank" rel="noopener noreferrer" className="underline text-blue-600">طريقة استخراج cookies.txt</a>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <AnimatePresence>
