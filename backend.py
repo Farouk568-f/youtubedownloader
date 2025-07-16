@@ -104,7 +104,11 @@ def get_video_or_playlist_info():
 
     # NOTE: For large playlists, this can be slow as it fetches formats for all videos.
     # A more advanced implementation might fetch basic info first, then formats on demand.
-    ydl_opts = {'quiet': True, 'extract_flat': False} 
+    ydl_opts = {'quiet': True, 'extract_flat': False}
+    # دعم الكوكيز إذا كان موجوداً
+    cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+    if os.path.exists(cookies_path):
+        ydl_opts['cookiefile'] = cookies_path
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -153,8 +157,13 @@ def download_video():
 
     video_url = f"https://www.youtube.com/watch?v={video_id}"
 
+    ydl_opts = {'format': format_id, 'quiet': True}
+    # دعم الكوكيز إذا كان موجوداً
+    cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+    if os.path.exists(cookies_path):
+        ydl_opts['cookiefile'] = cookies_path
+
     try:
-        ydl_opts = {'format': format_id, 'quiet': True}
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=False)
             download_url = info.get('url')
@@ -207,6 +216,10 @@ def download_pretty_url(filename):
     video_url = f"https://www.youtube.com/watch?v={video_id}"
     try:
         ydl_opts = {'format': format_id, 'quiet': True}
+        # دعم الكوكيز إذا كان موجوداً
+        cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+        if os.path.exists(cookies_path):
+            ydl_opts['cookiefile'] = cookies_path
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=False)
             download_url = info.get('url')
