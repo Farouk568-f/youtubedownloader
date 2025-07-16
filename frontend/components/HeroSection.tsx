@@ -13,7 +13,7 @@ const DownloadArrowIcon: React.FC<{className?: string}> = ({ className }) => (
 );
 
 const HeroSection: React.FC<HeroSectionProps> = ({ onFetch, isLoading, error }) => {
-  const [url, setUrl] = useState('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+  const [url, setUrl] = useState(''); // اجعل الرابط الافتراضي فارغ أو ضع مثالاً عاماً فقط
 
   const handleFetch = (e: React.FormEvent) => {
     e.preventDefault();

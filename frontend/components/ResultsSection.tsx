@@ -90,6 +90,24 @@ const FormatTable: React.FC<{ formats: DownloadFormat[], type: 'video' | 'audio'
     // تنظيم الجودات
     const organizedFormats = getUniqueSortedFormats(formats, type);
     if (organizedFormats.length === 0) return null;
+    const handleDownload = async (videoId: string, format: DownloadFormat, videoTitle: string) => {
+        try {
+            const filename = `${videoTitle} - ${(format.note || format.resolution || '').replace(/[^a-zA-Z0-9\-_ ]/g, '')}.${format.ext}`;
+            const response = await fetch(`${API_BASE_URL}/api/download?videoId=${videoId}&formatId=${format.format_id}`);
+            if (!response.ok) throw new Error('Download failed');
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            alert('Download failed!');
+        }
+    };
     return (
         <div>
             <h4 className="text-xl font-bold text-slate-200 mb-4">{type === 'video' ? 'Video Formats' : 'Audio Formats'}</h4>
@@ -119,15 +137,13 @@ const FormatTable: React.FC<{ formats: DownloadFormat[], type: 'video' | 'audio'
                                 </td>
                                 <td className="p-3">{formatBytes(format.filesize)}</td>
                                 <td className="p-3 text-right">
-                                    <a
-                                        href={`${API_BASE_URL}/api/download?videoId=${videoId}&formatId=${format.format_id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <button
+                                        onClick={() => handleDownload(videoId, format, videoTitle)}
                                         className="flex items-center justify-center space-x-2 rtl:space-x-reverse bg-cyan-600 text-white font-bold py-2 px-4 rounded-full transition-all duration-300 transform hover:bg-cyan-500 hover:scale-105 text-sm"
                                     >
                                         <DownloadIcon className="w-5 h-5"/>
                                         <span className="hidden md:inline">Download</span>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         ))}

@@ -5,11 +5,9 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
       server: {
-        host: '127.0.0.1',
+        host: true,
         port: 5173,
-        proxy: {
-          '/api': 'http://127.0.0.1:5000'
-        }
+        // proxy: {}  // احذف أو علق أي proxy ثابت
       },
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
