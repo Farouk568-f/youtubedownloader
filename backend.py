@@ -117,8 +117,8 @@ def get_video_or_playlist_info():
 
     except yt_dlp.utils.DownloadError as e:
         app.logger.error(f"yt-dlp download error: {e}")
-        error_message = str(e)
-        if "confirm you're not a bot" in error_message or "consent" in error_message or "age-restricted" in error_message:
+        error_message = str(e).lower()
+        if "sign in to confirm" in error_message or "consent" in error_message or "age-restricted" in error_message:
             return jsonify({
                 "message": "This video is protected by YouTube. Please try again with a cookies.txt file.",
                 "isProtected": True
