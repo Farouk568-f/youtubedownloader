@@ -191,7 +191,6 @@ def download_video():
         return jsonify({"message": f"Failed to process download for format {format_id}."}), 500
 
 if __name__ == '__main__':
-    # Use environment variable for port, default to 5000 for local dev.
-    # The Procfile uses gunicorn for production.
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    # Gunicorn will be used in production, so this is for local dev only.
+    # The port is hardcoded to 5000 to match the proxy config.
+    app.run(host='0.0.0.0', port=5000, debug=True)
