@@ -119,10 +119,11 @@ def get_video_or_playlist_info():
         app.logger.error(f"yt-dlp download error for url {url}: {e}")
         # Assume ANY DownloadError is a protection/availability issue.
         # This is a more robust way to handle various errors from yt-dlp.
+        # Return 200 OK and send error info in the body to avoid issues with proxies/gateways.
         return jsonify({
             "message": "This video is protected, private, or unavailable. If you are sure the URL is correct, please try again later or use a cookies.txt file for protected content.",
             "isProtected": True
-        }), 403
+        }), 200
     except Exception as e:
         app.logger.error(f"An unexpected error occurred: {e}")
         return jsonify({"message": "An unexpected server error occurred."}), 500
