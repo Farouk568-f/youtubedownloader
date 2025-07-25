@@ -1,55 +1,81 @@
-# YouTube Downloader – تعليمات التشغيل والنشر
+YouTube Downloader – Running and Deployment Instructions
+Prerequisites
+Python 3.8+
 
-## المتطلبات الأساسية
-- Python 3.8+
-- Node.js 18+
-- npm
+Node.js 18+
 
-## تشغيل المشروع محليًا
+npm
 
-1. تثبيت متطلبات الواجهة الأمامية:
-   ```bash
-   cd frontend
-   npm install
-   npm run build
-   ```
-2. تثبيت متطلبات بايثون:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. تشغيل السيرفر:
-   ```bash
-   python backend/backend.py
-   ```
+Running the Project Locally
+Install frontend dependencies:
 
-## النشر على منصات مثل Railway أو Render
+bash
+Copy
+Edit
+cd frontend
+npm install
+npm run build
+Install Python dependencies:
 
-1. تأكد أن ملف `Procfile` موجود ويحتوي:
-   ```
-   web: python backend/backend.py
-   ```
-2. تأكد من وجود `requirements.txt` في الجذر.
-3. في إعدادات المنصة:
-   - **Build Command:**
-     ```bash
-     cd frontend && npm install && npm run build
-     ```
-   - **Start Command:**
-     ```bash
-     python backend/backend.py
-     ```
-4. المنفذ الافتراضي هو 5000. إذا تطلبت المنصة متغير PORT، يمكنك تعديله في الكود.
+bash
+Copy
+Edit
+pip install -r requirements.txt
+Run the server:
 
-## ملاحظات
-- يتم تقديم ملفات React تلقائيًا من Flask بعد البناء.
-- إذا كنت تستخدم برامج تحميل خارجية (IDM)، قد تفتح نافذة جديدة وهذا خارج سيطرة الموقع.
-- جميع إعدادات CORS مفعلة افتراضيًا.
+bash
+Copy
+Edit
+python backend/backend.py
+Deployment on Platforms like Railway or Render
+Make sure the Procfile exists and contains:
 
-## دعم تحميل الفيديوهات المحمية (YouTube Cookies)
+bash
+Copy
+Edit
+web: python backend/backend.py
+Ensure requirements.txt is in the root directory.
 
-إذا واجهت رسالة خطأ من يوتيوب أو لم يعمل التحميل لبعض الفيديوهات:
-1. يمكنك استخراج ملف cookies.txt من متصفحك (مثلاً عبر إضافة [Get cookies.txt](https://chrome.google.com/webstore/detail/get-cookiestxt/)
-2. ضع الملف في مجلد backend باسم `cookies.txt`
-3. سيستخدمه السيرفر تلقائيًا لتجاوز بعض الحمايات
+In the platform settings:
 
-**تحذير:** لا تشارك ملف الكوكيز مع أي شخص آخر!
+Build Command:
+
+bash
+Copy
+Edit
+cd frontend && npm install && npm run build
+Start Command:
+
+bash
+Copy
+Edit
+python backend/backend.py
+The default port is 5000. If the platform requires a PORT variable, you can modify it in the code.
+
+Notes
+React files are served automatically from Flask after building.
+
+If you're using external downloaders (IDM), a new window might open — this is outside the site's control.
+
+All CORS settings are enabled by default.
+
+Support for Downloading Protected Videos (YouTube Cookies)
+If you receive an error message from YouTube or some videos fail to download:
+
+You can extract a cookies.txt file from your browser (e.g. using the Get cookies.txt extension).
+
+Place the file in the backend folder with the name cookies.txt.
+
+The server will automatically use it to bypass some protections.
+
+Warning: Do not share your cookies file with anyone!
+
+
+
+
+
+
+
+
+
+Ask ChatGPT
